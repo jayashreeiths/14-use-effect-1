@@ -7,16 +7,18 @@ const Clock = () => {
 
 	// // Closure
 	useEffect(() => {
-		if( time === 0 ) {
-			setInterval(() => {
-				setTime(oldTime => oldTime + INTERVAL/1000)
-			}, INTERVAL)
-		}
-	}, [time])
+		const intervalId = setInterval(() => {
+			setTime(oldTime => oldTime + INTERVAL/1000)
+		}, INTERVAL)
+
+		const cancelFunction = () => clearInterval(intervalId)
+		return cancelFunction
+	}, [])
 
 	return (
 		<div>
-		Visible for {time.toFixed(1)} seconds.
+		Visible for {time.toFixed(1)} seconds. <br/>
+		TODO: button to start/stop timer
 		</div>
 	)
 }
