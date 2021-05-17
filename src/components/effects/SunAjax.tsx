@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useMountedRef } from '../../hooks/useMountedRef'
 import { City } from '../../types/City'
 import { SunriseSunsetResponse, SunriseSunsetData } from '../../types/SunriseSunset'
 
@@ -11,13 +12,13 @@ const cities: City[] = [
 	{ name: 'Luleå', lat: 65.584816, lng: 22.156704 }
 ]
 
-// För att förbättra exemplet:
-// - flytta ut interface till egna filer
-// - använda "isMounted"
+
+
 
 const SunAjax = () => {
 	const [cityName, setCityName] = useState('')
 	const [data, setData] = useState<null | SunriseSunsetData>(null)
+	const isMounted = useMountedRef()
 
 	const fetchSunriseSunset = async (cityNameToFetch: string): Promise<void> => {
 		const city = cities.find(c => c.name === cityNameToFetch)
@@ -33,8 +34,14 @@ const SunAjax = () => {
 
 		const response = await fetch(url, { method: 'GET' })
 		const responseData: SunriseSunsetResponse = await response.json()
-		setData(responseData.results)
-		setCityName(cityNameToFetch)
+
+		// Se upp! Komponenten kanske inte längre är MOUNTED
+		// Kontrollera att komponenten finns innan vi ändrar state
+		// Tidigare fanns funktionen: isMounted()
+		if( isMounted.current ) {
+			setData(responseData.results)
+			setCityName(cityNameToFetch)
+		}
 		// Bra för felsökning! Kontrollera hur datan du får tillbaka ser ut
 		// console.log('SunAjax fetch: data=', responseData.results);
 	}
